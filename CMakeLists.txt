@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(ROS2_example)
+project(ros2_example)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -7,9 +7,21 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(example_interfaces REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "action/BoolAction.action"
+  DEPENDENCIES std_msgs
+)
+
+ament_export_dependencies(rosidl_default_runtime)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -22,5 +34,19 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+add_executable(action_server src/main.cpp)
+ament_target_dependencies(action_server rclcpp rclcpp_action std_msgs example_interfaces)
+target_link_libraries(action_server ${PROJECT_NAME}__rosidl_typesupport_cpp)
+
+add_executable(action_client src/action_client.cpp)
+ament_target_dependencies(action_client rclcpp rclcpp_action std_msgs example_interfaces)
+target_link_libraries(action_client ${PROJECT_NAME}__rosidl_typesupport_cpp)
+
+install(TARGETS
+  action_server
+  action_client
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 ament_package()

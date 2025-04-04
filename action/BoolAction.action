@@ -1,0 +1,9 @@
+# Request
+bool request
+---
+# Result
+bool result
+---
+# Feedback
+string feedback_string // status information
+int32 feedback_int // progress value of action (time in seconds) 
